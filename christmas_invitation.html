@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Christmas E-vite</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;600&family=Cinzel+Decorative:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Snowman favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⛄</text></svg>">
+
+
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;600&family=Cinzel+Decorative:wght@400;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --retro-red: #a81c30;
+      --retro-gold: #d4af37;
+      --retro-teal: #0b3d36;
+      --retro-cream: #f4ebd0;
+      --retro-white: #fdfdfd;
+      --film-grain-opacity: 0.07;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Poppins", sans-serif;
+      background-color: #050505;
+      color: var(--retro-cream);
+      overflow-x: hidden;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Film grain overlay */
+    .film-grain {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: var(--film-grain-opacity);
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
+      mix-blend-mode: overlay;
+    }
+
+    /* Intro Screen */
+    #intro-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: radial-gradient(circle at 50% 30%, #1a2e38 0%, #080f14 60%, #000 100%);
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.9s ease-in-out;
+    }
+
+    .intro-sky {
+      position: absolute;
+      inset: 0;
+    }
+
+    .aurora {
+      position: absolute;
+      top: -10%; left: -20%;
+      width: 140%; height: 70%;
+      background: linear-gradient(
+        120deg,
+        rgba(0, 255, 150, 0) 0%,
+        rgba(50, 200, 100, 0.06) 40%,
+        rgba(100, 0, 200, 0.06) 70%,
+        rgba(0, 255, 150, 0) 100%
+      );
+      filter: blur(50px);
+      animation: auroraShift 20s infinite alternate ease-in-out;
+      z-index: 1;
+    }
+
+    @keyframes auroraShift {
+      0% { transform: translateX(-6%); }
+      100% { transform: translateX(6%); }
+    }
+
+    .stars {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(white 1px, transparent 1px);
+      background-size: 60px 60px;
+      opacity: 0.4;
+      z-index: 0;
+    }
+
+    .snow-floor {
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 100%; height: 35vh;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(255,255,255,0.95), transparent 55%),
+        radial-gradient(circle at 80% 0%, rgba(255,255,255,0.95), transparent 55%),
+        linear-gradient(to bottom, #eef 0%, #dde 100%);
+      border-radius: 60% 60% 0 0 / 20% 20% 0 0;
+      transform: scaleX(1.4);
+      box-shadow: 0 -20px 60px rgba(255,255,255,0.15);
+      z-index: 2;
+    }
+
+    /* Wind band overlay */
+    .wind-band {
+      position: fixed;
+      top: 15%; left: -50%;
+      width: 200%; height: 40%;
+      background: radial-gradient(circle at 15% 50%, rgba(255,255,255,0.18), transparent 65%);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 450;
+      transform: skewX(-12deg);
+      transition: opacity 0.6s ease, transform 1s ease;
+    }
+
+    body.gust-active .wind-band {
+      opacity: 0.32;
+      transform: translateX(10%) skewX(-12deg);
+    }
+
+    /* Envelope */
+    .envelope-wrapper {
+      position: absolute;
+      z-index: 10;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      animation: flyInArc 3.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      cursor: pointer;
+    }
+
+    @keyframes flyInArc {
+      0% {
+        left: -40vw; top: 80vh;
+        transform: translate(-50%, -50%) rotate(-45deg) scale(0.6);
+      }
+      60% {
+        top: 40vh;
+        transform: translate(-50%, -50%) rotate(5deg) scale(0.9);
+      }
+      100% {
+        left: 50%; top: 50%;
+        transform: translate(-50%, -50%) rotate(0deg) scale(1);
+      }
+    }
+
+    .envelope {
+      width: min(90vw, 420px);
+      height: 280px;
+      background: var(--retro-cream);
+      border-radius: 8px;
+      box-shadow:
+        0 25px 50px rgba(0,0,0,0.6),
+        0 0 25px rgba(212,175,55,0.35);
+      padding: 25px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      overflow: visible;
+    }
+
+    .envelope:hover {
+      transform: scale(1.02);
+      box-shadow:
+        0 30px 65px rgba(0,0,0,0.7),
+        0 0 32px rgba(212,175,55,0.45);
+    }
+
+    .envelope::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 8px solid transparent;
+  border-radius: 8px;
+
+  /* Candy cane border pattern */
+  background: repeating-linear-gradient(
+      45deg,
+      var(--retro-red),
+      var(--retro-red) 10px,
+      #fff 10px,
+      #fff 20px
+  ) border-box;
+
+  /* Mask: FIXED VERSION */
+  -webkit-mask:
+      linear-gradient(#000 0 0) padding-box,
+      linear-gradient(#000 0 0);
+  mask:
+      linear-gradient(#000 0 0) padding-box,
+      linear-gradient(#000 0 0);
+
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+
+  pointer-events: none;
+  opacity: 0.95;
+}
+
+
+    .stamp {
+      position: absolute; top: 20px; right: 20px;
+      width: 65px; height: 65px;
+      border: 2px dashed var(--retro-red);
+      border-radius: 50%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      color: var(--retro-red);
+      font-family: 'Cinzel Decorative', cursive;
+      font-weight: 700; font-size: 0.6rem;
+      transform: rotate(15deg);
+      opacity: 0.8;
+      background: rgba(255,255,255,0.9);
+      z-index: 2;
+    }
+
+    .stamp-icon {
+      font-size: 1.2rem;
+      margin-bottom: 2px;
+    }
+
+    .address {
+      font-family: 'Cinzel Decorative', cursive;
+      color: #333;
+      text-align: left;
+      padding-left: 10%;
+      margin-top: 40px;
+      font-size: 1.05rem;
+      line-height: 1.5;
+      position: relative;
+      z-index: 1;
+    }
+
+    .env-title {
+      font-family: 'Great Vibes', cursive;
+      font-size: 2.2rem;
+      color: var(--retro-red);
+      margin-top: 20px;
+      text-align: center;
+      text-shadow: 0 0 10px rgba(168,28,48,0.4);
+      position: relative;
+      z-index: 1;
+    }
+
+    .scarf {
+      position: absolute;
+      bottom: -10px; /* moved lower so it doesn't cover text */
+      right: -25px;
+      width: 160px;
+      height: 38px;
+      background: repeating-linear-gradient(
+        90deg,
+        var(--retro-red),
+        var(--retro-red) 15px,
+        #fff 15px,
+        #fff 30px
+      );
+      transform: rotate(-10deg);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      border-radius: 4px;
+      animation: scarfWiggle 3.2s ease-in-out infinite;
+      z-index: 0;
+    }
+
+    .scarf::after {
+      content: "";
+      position: absolute;
+      right: -10px;
+      top: 0;
+      width: 12px;
+      height: 100%;
+      background: var(--retro-red);
+      clip-path: polygon(
+        0 0,
+        100% 15%,
+        0 30%,
+        100% 45%,
+        0 60%,
+        100% 75%,
+        0 90%,
+        100% 100%
+      );
+    }
+
+    @keyframes scarfWiggle {
+      0%, 100% { transform: rotate(-10deg) translateY(0); }
+      50% { transform: rotate(-7deg) translateY(-4px); }
+    }
+
+    .click-hint {
+      position: absolute;
+      bottom: -50px;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      color: var(--retro-gold);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+      opacity: 0;
+      animation: fadeInHint 1s ease forwards 3.5s;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+    }
+
+    @keyframes fadeInHint {
+      to { opacity: 0.8; }
+    }
+
+    /* Main content */
+    #main-content {
+      display: none;
+      opacity: 0;
+      transition: opacity 1s ease;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.95));
+      padding-bottom: 60px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .section {
+      padding: 60px 20px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      text-align: center;
+      font-family: "Great Vibes", cursive;
+      font-size: 3rem;
+      color: var(--retro-gold);
+      text-shadow: 0 0 20px rgba(212,175,55,0.4);
+      margin-bottom: 10px;
+    }
+
+    .section-subtitle {
+      text-align: center;
+      font-size: 1rem;
+      opacity: 0.9;
+      margin-bottom: 40px;
+      letter-spacing: 0.5px;
+    }
+
+    .locations {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+    }
+
+    .loc-card {
+      background: rgba(11,61,54,0.45);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 12px;
+      overflow: hidden;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      transition: transform 0.3s, border-color 0.3s;
+    }
+
+    .loc-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--retro-gold);
+    }
+
+    .loc-img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      filter: sepia(0.3) contrast(1.1);
+    }
+
+    .loc-body {
+      padding: 20px;
+    }
+
+    .loc-title {
+      font-family: 'Cinzel Decorative', cursive;
+      font-size: 1.3rem;
+      color: var(--retro-gold);
+      margin-bottom: 8px;
+    }
+
+    .loc-note {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      opacity: 0.9;
+    }
+
+    .loc-tag {
+      margin-top: 12px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--retro-red);
+      font-weight: 600;
+    }
+
+    .mission {
+      margin-top: 50px;
+      padding: 30px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(168,28,48,0.1), rgba(0,0,0,0.6));
+      border: 1px solid rgba(168,28,48,0.4);
+      box-shadow: 0 0 40px rgba(0,0,0,0.5);
+    }
+
+    .mission-title {
+      font-family: 'Cinzel Decorative', cursive;
+      font-size: 1.2rem;
+      color: var(--retro-gold);
+      margin-bottom: 15px;
+    }
+
+    .mission ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .mission li {
+      margin-bottom: 10px;
+      padding-left: 20px;
+      position: relative;
+      font-size: 0.95rem;
+    }
+
+    .mission li::before {
+      content: "★";
+      color: var(--retro-gold);
+      position: absolute;
+      left: 0;
+      top: 1px;
+      font-size: 0.8rem;
+    }
+
+    .invite-card {
+      margin-top: 50px;
+      padding: 40px;
+      border-radius: 16px;
+      background: rgba(0,0,0,0.75);
+      border: 1px solid var(--retro-gold);
+      text-align: center;
+      position: relative;
+      box-shadow: 0 0 40px rgba(0,0,0,0.7);
+    }
+
+    .invite-heading {
+      font-family: 'Great Vibes', cursive;
+      font-size: 2.2rem;
+      color: var(--retro-gold);
+      margin-bottom: 15px;
+    }
+
+    .invite-details {
+      font-size: 1.05rem;
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+
+    .invite-sweet {
+      font-size: 0.95rem;
+      font-style: italic;
+      opacity: 0.9;
+    }
+
+    .invite-rsvp {
+      margin-top: 18px;
+    }
+
+    .btn-rsvp {
+      border: none;
+      border-radius: 50px;
+      padding: 14px 40px;
+      background: var(--retro-gold);
+      color: #1a1a1a;
+      font-family: 'Cinzel Decorative', serif;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 20px rgba(212,175,55,0.3);
+    }
+
+    .btn-rsvp:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 40px rgba(212,175,55,0.6);
+    }
+
+    .footer-note {
+      text-align: center;
+      margin: 40px 0;
+      font-size: 0.85rem;
+      opacity: 0.6;
+      font-style: italic;
+    }
+
+    /* Snow & wind */
+    #snow-container {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 500;
+      overflow: hidden;
+    }
+
+    .snowflake {
+      position: absolute;
+      background: radial-gradient(white 20%, rgba(255,255,255,0) 70%);
+      border-radius: 50%;
+      opacity: 0.85;
+    }
+
+    @keyframes fall {
+      0% { top: -30px; }
+      100% { top: 100vh; }
+    }
+
+    @keyframes sway {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(26px); }
+    }
+
+    @keyframes sparkle {
+      0%, 90% { filter: drop-shadow(0 0 0px rgba(255,255,255,0)); }
+      92% { filter: drop-shadow(0 0 4px rgba(255,255,255,0.35)); }
+      100% { filter: drop-shadow(0 0 0px rgba(255,255,255,0)); }
+    }
+
+    @keyframes snowFall {
+    0% { transform: translateY(-20px); opacity: 1; }
+    100% { transform: translateY(100vh); opacity: 0.9; }
+  }
+
+  @keyframes snowSway {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(25px); }
+  }
+
+  @keyframes snowSparkle {
+    0% { filter: drop-shadow(0 0 0px rgba(255,255,255,0)); }
+    100% { filter: drop-shadow(0 0 6px rgba(255,255,255,0.5)); }
+  }
+
+
+    /* Music Button */
+    .music-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 2000;
+      background: rgba(0,0,0,0.6);
+      border: 1px solid var(--retro-gold);
+      color: var(--retro-gold);
+      padding: 10px 20px;
+      border-radius: 30px;
+      cursor: pointer;
+      font-family: 'Cinzel Decorative', cursive;
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .music-toggle:hover {
+      background: var(--retro-gold);
+      color: #000;
+    }
+
+    @media (max-width: 600px) {
+      .section-title {
+        font-size: 2.4rem;
+      }
+      .invite-card {
+        padding: 28px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="film-grain"></div>
+<div class="wind-band"></div>
+<div id="snow-container"></div>
+
+<section id="intro-screen">
+  <div class="intro-sky">
+    <div class="aurora"></div>
+    <div class="stars"></div>
+  </div>
+
+  <div class="snow-floor"></div>
+
+  <div class="envelope-wrapper" id="envelope-trigger">
+    <div class="envelope">
+      <div class="stamp">
+        <span class="stamp-icon">🎅☃️</span>
+        <span>Santa</span>
+      </div>
+
+      <div class="address">
+      <br>
+        Ms. Myancheyster<br>
+        The Corner Cubicle Upstairs<br>
+        99 Bow St, Ste 100E<br> 
+        Portsmouth
+      </div>
+
+      <div class="env-title">A Christmas Dinner Invitation</div>
+      <div class="scarf"></div>
+    </div>
+
+    <!-- <div class="click-hint">
+      A letter from the North Pole has arrived.<br>
+      Click to open.
+    </div> -->
+  </div>
+</section>
+
+<div id="main-content">
+  <section class="section">
+    <h2 class="section-title">An Early Christmas Dinner before holidays</h2>
+    <p class="section-subtitle">
+      Think of this like a mini Christmas movie: good food, warm lights, and a slightly ridiculous amount of planning.
+    </p>
+
+    <div class="locations">
+      <div class="loc-card">
+        <img
+          class="loc-img"
+          src="https://images.squarespace-cdn.com/content/v1/6089b62524fe39700d2fcc96/1623696184456-FTSLU97N3DSB4WCVD8KJ/DSC03317.JPG"
+          alt="Pressed Café, Salem NH"
+        />
+        <div class="loc-body">
+          <div class="loc-title">Location I — Pressed Café, Salem NH</div>
+          <div class="loc-note">
+            Cozy vibes, something warm to eat, and a chance to actually sit and talk.
+          </div>
+          <div class="loc-tag">
+            Scene setting: comfy, wintery, low chaos.
+          </div>
+        </div>
+      </div>
+
+      <div class="loc-card">
+        <img
+          class="loc-img"
+          src="https://live-tuscan-village.twic.pics/wp-content/uploads/2023/11/shake-shack-tuscan-village-Salem-NH-grand-opening-4.jpg?twic=v1%2Ffocus%3Dauto%2Fresize%3D710%2Fcrop%3D710x362%2Fformat%3Dauto"
+          alt="Shake Shack, Tuscan Village"
+        />
+        <div class="loc-body">
+          <div class="loc-title">Location II — Shake Shack </div>
+          <div class="loc-note">
+            A festive shake, Christmas lights, and maximum dessert-based happiness to wrap things up.
+          </div>
+          <div class="loc-tag">
+            Bonus: built-in Christmas lights aesthetic.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mission">
+      <div class="mission-title">Mission (should you choose to accept it):</div>
+      <ul>
+        <li>Pick a day that works for you: <strong>15th or 16th December 2025</strong>.</li>
+        <li>Time is totally flexible — we can adjust to whatever’s feasible for you.</li>
+        <li>Show up in something warm. It will be cold 🥶.</li>
+        <li>Goal: good food, good vibes , and a small break from last week's chaos.</li>
+
+      </ul>
+    </div>
+
+    <div class="invite-card">
+      <div class="invite-heading">Your Official Invitation</div>
+      <div class="invite-details">
+        <strong>Where:</strong> Pressed Café, Salem NH<br />
+        <strong>After:</strong> Shake Shack, Tuscan Village<br /><br />
+        <strong>Date:</strong> 15th or 16th December 2025<br />
+        <strong>Time:</strong> TBD — we can plan around your schedule.
+      </div>
+      <div class="invite-sweet">
+        Note: You gotta drive me tho — if you’re tired, I can take the wheel!
+      </div>
+
+      <div class="invite-rsvp">
+        <button class="btn-rsvp" id="rsvpBtn">
+          Sounds fun 🎄
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer-note">
+    Questions?! : Ask Akhil whenever he stops by your desk <br>
+    P.S. If this feels a bit dramatic… that was very much the intention. 
+  </div>
+</div>
+
+<button class="music-toggle" id="musicToggle">
+  <span class="icon">❚❚</span> Pause Music
+</button>
+
+<audio id="bgMusic" loop>
+  <source src="jingle-bells-christmas-music-box.mp3" type="audio/mpeg" />
+</audio>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+<script>
+  const snowContainer = document.getElementById("snow-container");
+  const envelope = document.getElementById("envelope-trigger");
+  const intro = document.getElementById("intro-screen");
+  const main = document.getElementById("main-content");
+  const music = document.getElementById("bgMusic");
+  const musicToggle = document.getElementById("musicToggle");
+  const rsvpBtn = document.getElementById("rsvpBtn");
+
+  /* Snow creation */
+  function createSnow() {
+    const count = 55;
+    for (let i = 0; i < count; i++) {
+      const flake = document.createElement("div");
+      flake.className = "snowflake";
+
+      const size = Math.random() * 12 + 8;
+      const left = Math.random() * 100;
+      const delay = Math.random() * 5;
+      const duration = Math.random() * 10 + 10;
+
+      flake.style.width = size + "px";
+      flake.style.height = size + "px";
+      flake.style.left = left + "vw";
+      flake.style.animation = `
+        fall ${duration}s linear infinite -${delay}s,
+        sway 6s ease-in-out infinite alternate,
+        sparkle 7s ease-in-out infinite
+      `;
+
+      snowContainer.appendChild(flake);
+    }
+  }
+  createSnow();
+
+  /* Wind gusts */
+  function startGusts() {
+    setInterval(() => {
+      document.body.classList.add("gust-active");
+      setTimeout(() => {
+        document.body.classList.remove("gust-active");
+      }, 1100);
+    }, 7000);
+  }
+  startGusts();
+
+  /* Envelope click -> open + music */
+  music.volume = 0.5;
+
+  envelope.addEventListener("click", () => {
+    music.play().then(() => {
+      musicToggle.style.display = "flex";
+    }).catch(() => {});
+
+    intro.style.opacity = "0";
+    intro.style.pointerEvents = "none";
+
+    setTimeout(() => {
+      main.style.display = "block";
+      requestAnimationFrame(() => {
+        main.style.opacity = "1";
+      });
+    }, 900);
+  });
+
+  /* Music toggle */
+  musicToggle.addEventListener("click", () => {
+    if (music.paused) {
+      music.play();
+      musicToggle.innerHTML = "<span class='icon'>❚❚</span> Pause Music";
+    } else {
+      music.pause();
+      musicToggle.innerHTML = "<span class='icon'>▶</span> Play Music";
+    }
+  });
+
+  /* Confetti on RSVP */
+  function launchConfetti() {
+    const end = Date.now() + 1200;
+    const colors = ["#d4af37", "#a81c30", "#ffffff"];
+
+    rsvpBtn.innerText = "RSVP Sent! 🎄";
+    rsvpBtn.style.background = "#fff";
+    rsvpBtn.style.color = "#a81c30";
+
+    (function frame() {
+      confetti({ particleCount: 6, spread: 55, origin: { x: 0 }, colors });
+      confetti({ particleCount: 6, spread: 55, origin: { x: 1 }, colors });
+
+      if (Date.now() < end) requestAnimationFrame(frame);
+    })();
+  }
+
+  rsvpBtn.addEventListener("click", launchConfetti);
+</script>
+
+</body>
+</html>
